@@ -1,0 +1,14 @@
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the plugin's own checks
+        run: plugins/novadde/scripts/check.sh

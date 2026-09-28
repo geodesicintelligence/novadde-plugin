@@ -1,0 +1,34 @@
+{
+  "repo": "https://github.com/geodesicintelligence/geodesic-science-skills",
+  "commit": "72ec9362b58565dc3034127e181df1a34ac11bfa",
+  "synced_at": "2026-09-15T12:05:07Z",
+  "skills": [
+    "antibody-developability-thresholds",
+    "antibody-interface-metrics",
+    "antibody-liabilities",
+    "antibody-numbering",
+    "binder-benchmarking",
+    "binder-fold-stability",
+    "biopython",
+    "bioservices",
+    "borzoi",
+    "epitope-selection",
+    "evo2",
+    "fair-esm2",
+    "geodesic",
+    "gget",
+    "glycoengineering",
+    "ipsae-calculate",
+    "molecular-dynamics",
+    "paper-lookup",
+    "plm-variant-scoring",
+    "protein-binder-campaign",
+    "rdkit",
+    "scgpt",
+    "scientific-visualization",
+    "scientific-writing"
+  ],
+  "excluded": [
+    "test (a smoke test for the science repo's symlink install path)"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "novadde-plugin",
+  "interface": {
+    "displayName": "Geodesic Intelligence"
+  },
+  "plugins": [
+    {
+      "name": "novadde",
+      "source": {
+        "source": "local",
+        "path": "./plugins/novadde"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Education & Research"
+    }
+  ]
+}

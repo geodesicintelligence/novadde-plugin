@@ -1,0 +1,21 @@
+NovaDDE plugin for Claude Code and Codex
+Copyright (c) 2026 Geodesic Intelligence. All rights reserved.
+
+This license covers the NovaDDE plugin, in its source repository and in any installed copy, except
+the third-party material listed in THIRD-PARTY-NOTICES.md (plugins/novadde/ in the repository),
+which is licensed under its own terms.
+
+Geodesic Intelligence grants you a non-exclusive, non-transferable, revocable license to install
+and use the plugin to access Geodesic Intelligence's services. No other right is granted. You may
+not copy, modify, distribute, sublicense or sell the plugin or any part of it, including its
+prompts, skills and scripts, or use any part of it with another service, except as installing and
+using the plugin requires, or with Geodesic Intelligence's prior written permission.
+
+THE PLUGIN IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL GEODESIC INTELLIGENCE BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE PLUGIN OR THE USE OR OTHER DEALINGS IN THE PLUGIN.
+
+Your use of Geodesic Intelligence's services through the plugin is governed by the terms of those
+services.

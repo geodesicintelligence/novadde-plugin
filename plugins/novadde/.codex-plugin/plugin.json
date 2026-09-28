@@ -1,0 +1,30 @@
+{
+  "name": "novadde",
+  "version": "0.1.0",
+  "description": "NovaDDE, Geodesic Intelligence's AI co-scientist for drug discovery: run protein design and structure models on Geodesic GPUs, billed to your Model Platform credits.",
+  "author": {
+    "name": "Geodesic Intelligence",
+    "email": "info@geodesiclab.com",
+    "url": "https://www.geodesiclab.com"
+  },
+  "homepage": "https://github.com/geodesicintelligence/novadde-plugin",
+  "repository": "https://github.com/geodesicintelligence/novadde-plugin",
+  "keywords": ["novadde", "geodesic", "protein-design", "structural-biology", "drug-discovery"],
+  "skills": "./skills/",
+  "mcpServers": "./.codex.mcp.json",
+  "hooks": {},
+  "interface": {
+    "displayName": "NovaDDE",
+    "shortDescription": "GPU protein design & folding",
+    "longDescription": "Run Geodesic Intelligence's protein design and structure models (BoltzGen, Boltz-2 and more) on Geodesic GPUs from Codex. Every job is billed to your Model Platform credits: NovaDDE estimates the cost first and asks before it submits. Needs a Model Platform API key saved in ~/.config/geodesic/model-platform.env; the catalog works without one.",
+    "developerName": "Geodesic Intelligence",
+    "category": "Education & Research",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://www.geodesiclab.com",
+    "defaultPrompt": [
+      "What models can NovaDDE run, and what do they cost?",
+      "Show my Geodesic credits and recent jobs",
+      "Estimate, then fold this sequence with esmfold"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "novadde-plugin",
+  "description": "Geodesic Intelligence's NovaDDE agent for Claude Code",
+  "owner": {
+    "name": "Geodesic Intelligence",
+    "email": "info@geodesiclab.com"
+  },
+  "plugins": [
+    {
+      "name": "novadde",
+      "source": "./plugins/novadde",
+      "description": "NovaDDE, the AI co-scientist for drug discovery: identity, GPU models over MCP, science skills, job notifications in the interactive CLI."
+    }
+  ]
+}

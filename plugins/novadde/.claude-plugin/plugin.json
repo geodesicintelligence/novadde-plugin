@@ -1,0 +1,25 @@
+{
+  "name": "novadde",
+  "version": "0.1.0",
+  "description": "NovaDDE, Geodesic Intelligence's AI co-scientist for drug discovery, as a Claude Code plugin: the deployment's own system prompt, the Model Platform's GPU models over MCP, the lab's science skills, and, in the interactive CLI, a watcher that tells you when a job finishes.",
+  "author": {
+    "name": "Geodesic Intelligence",
+    "email": "info@geodesiclab.com"
+  },
+  "homepage": "https://github.com/geodesicintelligence/novadde-plugin",
+  "repository": "https://github.com/geodesicintelligence/novadde-plugin",
+  "keywords": ["novadde", "geodesic", "protein-design", "structural-biology", "drug-discovery"],
+  "userConfig": {
+    "user_message_suffix": {
+      "type": "string",
+      "title": "Per-message reminder",
+      "description": "Text appended to every message you send, as a standing reminder to the agent. Empty by default, which is what the deployment ships."
+    },
+    "read_only": {
+      "type": "boolean",
+      "title": "Refuse job submission",
+      "description": "Deny submit_job and submit_pipeline_run, so the agent can read the catalog and report on runs but cannot spend GPU time. Off by default, as on the deployment.",
+      "default": false
+    }
+  }
+}

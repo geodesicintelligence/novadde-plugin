@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "model_platform": {
+      "type": "http",
+      "url": "https://platform.geodesiclab.com/api/mcp",
+      "http_headers_helper": "f=\"$HOME/.config/geodesic/model-platform.env\"; k=$(sed -n 's/^[[:space:]]*\\(export[[:space:]][[:space:]]*\\)\\{0,1\\}MODEL_PLATFORM_API_KEY=//p' \"$f\" 2>/dev/null | tr -d '\\r' | tail -1 | sed 's/[[:space:]][[:space:]]*#.*$//' | tr -d \"\\\"'[:space:]\"); if [ -n \"$k\" ]; then printf '{\"Authorization\":\"Bearer %s\"}' \"$k\"; else printf '{}'; fi",
+      "startup_timeout_sec": 20,
+      "tool_timeout_sec": 120,
+      "tools": {
+        "list_models":           { "approval_mode": "approve" },
+        "describe_model":        { "approval_mode": "approve" },
+        "get_model_readme":      { "approval_mode": "approve" },
+        "list_pipelines":        { "approval_mode": "approve" },
+        "describe_pipeline":     { "approval_mode": "approve" },
+        "estimate_job":          { "approval_mode": "approve" },
+        "get_usage":             { "approval_mode": "approve" },
+        "list_jobs":             { "approval_mode": "approve" },
+        "get_job":               { "approval_mode": "approve" },
+        "wait_for_job":          { "approval_mode": "approve" },
+        "read_artifact":         { "approval_mode": "approve" },
+        "read_artifact_bytes":   { "approval_mode": "approve" },
+        "fetch_artifact":        { "approval_mode": "approve" },
+        "list_pipeline_runs":    { "approval_mode": "approve" },
+        "get_pipeline_run":      { "approval_mode": "approve" },
+        "wait_for_pipeline_run": { "approval_mode": "approve" }
+      }
+    }
+  }
+}

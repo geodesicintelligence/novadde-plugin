@@ -1,0 +1,8 @@
+[
+  {
+    "name": "novadde-jobs",
+    "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/watch-jobs.sh",
+    "description": "GPU jobs finishing on the Geodesic Model Platform",
+    "when": "always"
+  }
+]
