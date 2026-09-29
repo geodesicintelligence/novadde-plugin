@@ -18,3 +18,4 @@ list_pipeline_runs
 get_pipeline_run
 wait_for_pipeline_run
 cancel_pipeline_run
+get_profile

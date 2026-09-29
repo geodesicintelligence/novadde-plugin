@@ -218,7 +218,7 @@ def watcher_on_a_refused_key():
         handle.write(f"MODEL_PLATFORM_API_KEY={KEY}\n")
     saved_env = dict(os.environ)
     os.environ.pop("CLAUDE_PLUGIN_DATA", None)
-    os.environ.update(HOME=home, MP_URL="https://platform.geodesiclab.com",
+    os.environ.update(HOME=home, MP_URL="https://dev-platform.geodesiclab.org",
                       NOVADDE_DATA=os.path.join(home, "data"))
     said = io.StringIO()
     try:

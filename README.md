@@ -30,12 +30,16 @@ Claude Code reads its own (`.claude-plugin/`).
 
 ## Connect it to the Model Platform
 
+For now the plugin works against the Model Platform's development deployment,
+https://dev-platform.geodesiclab.org. Its accounts, API keys and credits are its own: a key minted
+on platform.geodesiclab.com is refused there, so mint one on the development deployment as below.
+
 The key lives in one file, `~/.config/geodesic/model-platform.env` (mode 600), and nowhere else: the
 MCP connection, the hooks and the background job watcher all read it.
 
-1. Open https://platform.geodesiclab.com and choose **Continue with Google**. Your first sign-in
+1. Open https://dev-platform.geodesiclab.org and choose **Continue with Google**. Your first sign-in
    creates the account.
-2. Open **API Keys** at https://platform.geodesiclab.com/keys and create a key labelled
+2. Open **API Keys** at https://dev-platform.geodesiclab.org/keys and create a key labelled
    `novadde-plugin`. Leave the model list empty: a key restricted to some models is refused here.
    Copy the secret.
 3. **In a terminal, not in any chat**, save it. The key is read hidden, never goes on a command
@@ -52,8 +56,8 @@ MCP connection, the hooks and the background job watcher all read it.
 4. Start a new session.
 
 Never paste the key into a conversation. If a key leaks, delete it at
-https://platform.geodesiclab.com/keys and mint a new one; a key the platform refuses is replaced the
-same way. `/novadde:setup` walks through these steps from inside a session, and
+https://dev-platform.geodesiclab.org/keys and mint a new one; a key the platform refuses is replaced
+the same way. `/novadde:setup` walks through these steps from inside a session, and
 
 ```
 /novadde:status
@@ -116,8 +120,8 @@ already-installed plugin):
 
 Neither the key nor the platform is a setting. The key is only ever read from
 `~/.config/geodesic/model-platform.env`, and the platform is always
-`https://platform.geodesiclab.com`: a `MODEL_PLATFORM_URL` line in that file, as lab machines have,
-is ignored.
+`https://dev-platform.geodesiclab.org`: a `MODEL_PLATFORM_URL` line in that file, as lab machines
+have, is ignored.
 
 Without a key you still get the catalog: `list_models`, `describe_model`, `get_model_readme`,
 `list_pipelines`, `describe_pipeline`. Everything that submits or reads a run refuses.

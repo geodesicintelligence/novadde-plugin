@@ -53,7 +53,7 @@ README = os.path.join(REPO, "README.md")
 MP_AUTH = os.path.join(SCRIPTS, "mp-auth.sh")
 WATCH_JOBS = os.path.join(SCRIPTS, "lib", "watch_jobs.py")
 
-PLATFORM = "https://platform.geodesiclab.com"
+PLATFORM = "https://dev-platform.geodesiclab.org"
 # Stands in for the internal address a lab Mac's file carries. A reserved name (RFC 2606) rather
 # than the real host, because this repo is read outside the lab and every check here needs only a
 # URL that is not the platform's.

@@ -260,7 +260,7 @@ fetched, a result you produced, or anything a later session needs.
 
 ## Structural biology on this deployment
 
-`model_platform` (`list_models`, `describe_model`, `get_model_readme`, `list_pipelines`, `describe_pipeline`, `submit_job`, `estimate_job`, `list_jobs`, `get_job`, `wait_for_job`, `read_artifact`, `read_artifact_bytes`, `stage_file`, `fetch_artifact`, `cancel_job`, `submit_pipeline_run`, `list_pipeline_runs`, `get_pipeline_run`, `wait_for_pipeline_run`, `cancel_pipeline_run`)
+`model_platform` (`list_models`, `describe_model`, `get_model_readme`, `list_pipelines`, `describe_pipeline`, `submit_job`, `estimate_job`, `list_jobs`, `get_job`, `wait_for_job`, `read_artifact`, `read_artifact_bytes`, `stage_file`, `fetch_artifact`, `cancel_job`, `submit_pipeline_run`, `list_pipeline_runs`, `get_pipeline_run`, `wait_for_pipeline_run`, `cancel_pipeline_run`, `get_profile`)
 runs structure and design models on the lab's GPUs. **Its output is ungraded**: it enters no
 verification tower, no modality guard, no threshold with recorded provenance, and leaves no
 trace. Report an ipTM, an ipSAE, a pose as raw model output -- never as a validated or

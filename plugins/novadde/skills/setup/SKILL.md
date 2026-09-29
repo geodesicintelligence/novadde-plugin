@@ -13,6 +13,10 @@ run or reads one back needs an `mp_` API key.
 The key lives in one file, `~/.config/geodesic/model-platform.env` (mode 600), and nowhere else. The
 MCP connection, the hooks and the job watcher all read that file, whichever host this is.
 
+For now the plugin uses the platform's development deployment, https://dev-platform.geodesiclab.org,
+whose accounts and keys are its own. A key minted on platform.geodesiclab.com is refused there, so a
+user who has one mints another on the development deployment.
+
 **Never ask for the key in this conversation, and never run the saving command yourself.** The user
 mints the key in their browser and saves it from their own terminal, so it never has to pass
 through here. If they paste one anyway, tell them to delete it on the API Keys page and mint
@@ -20,9 +24,9 @@ another: a key that has been in a conversation cannot be taken back out of it.
 
 ## The steps to give the user
 
-1. Open https://platform.geodesiclab.com and choose **Continue with Google**. The first sign-in
+1. Open https://dev-platform.geodesiclab.org and choose **Continue with Google**. The first sign-in
    creates the account.
-2. Open **API Keys** at https://platform.geodesiclab.com/keys and create a key labelled
+2. Open **API Keys** at https://dev-platform.geodesiclab.org/keys and create a key labelled
    `novadde-plugin`. Leave the model list empty: a key restricted to some models is refused here.
    Copy the secret.
 3. **In a terminal, not in any chat**, run this and paste the key at the prompt. The key is read
