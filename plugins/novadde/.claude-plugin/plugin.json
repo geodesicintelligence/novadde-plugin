@@ -1,6 +1,6 @@
 {
   "name": "novadde",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "NovaDDE, Geodesic Intelligence's AI co-scientist for drug discovery, as a Claude Code plugin: the deployment's own system prompt, the Model Platform's GPU models over MCP, the lab's science skills, and, in the interactive CLI, a watcher that tells you when a job finishes.",
   "author": {
     "name": "Geodesic Intelligence",

@@ -28,21 +28,67 @@ Both install from this repository, as the same plugin id: Codex reads its own ma
 manifest (`.agents/plugins/marketplace.json`, `plugins/novadde/.codex-plugin/plugin.json`) and
 Claude Code reads its own (`.claude-plugin/`).
 
-## Connect it to the Model Platform
-
-Version **0.2.2** connects to https://platform.geodesiclab.com using OAuth by default.
-Run `/novadde:setup` (Codex: `$novadde:setup`) to get the absolute path of the installed
-plugin's authentication command. In your own terminal, run:
+If you already installed an earlier version, refresh it before logging in.
+For Claude Code:
 
 ```bash
-/path/to/installed/novadde/scripts/auth.sh login
-/path/to/installed/novadde/scripts/auth.sh status
+claude plugin marketplace update novadde-plugin
+claude plugin update novadde@novadde-plugin
 ```
 
-Login opens the production sign-in and consent page. Approve **Novadde Plugin** for
-`jobs:read` and `jobs:write`, then reconnect MCP or start a new session. The temporary
-callback listener binds only to `127.0.0.1`. A declined or timed-out login preserves an
-existing connection. Hooks and background refreshes never open a browser.
+For Codex:
+
+```bash
+codex plugin marketplace upgrade novadde-plugin
+codex plugin add novadde@novadde-plugin
+```
+
+Restart the client after updating.
+
+## Connect it to the Model Platform
+
+Version **0.2.3** connects to https://platform.geodesiclab.com using OAuth by default.
+Your Claude/Codex account login and your Geodesic platform login are separate.
+Install the plugin using the commands above, then run its OAuth login command in your
+own terminal. One platform login connects both clients and Claude's job watcher.
+
+**Claude Code, version 0.2.3:**
+
+```bash
+NOVADDE_AUTH="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cache/novadde-plugin/novadde/0.2.3/scripts/auth.sh"
+"$NOVADDE_AUTH" login
+"$NOVADDE_AUTH" status
+```
+
+**Codex, version 0.2.3:**
+
+```bash
+NOVADDE_AUTH="${CODEX_HOME:-$HOME/.codex}/plugins/cache/novadde-plugin/novadde/0.2.3/scripts/auth.sh"
+"$NOVADDE_AUTH" login
+"$NOVADDE_AUTH" status
+```
+
+These paths use the clients' standard installation layout. If the command is missing,
+run `/novadde:setup` in Claude Code or `$novadde:setup` in Codex to get the actual
+installed `auth.sh` path, and use that path for `NOVADDE_AUTH`.
+
+1. `login` opens your browser at the production platform. Sign into the Geodesic account
+   you want the plugin to use.
+2. On **Connect Novadde Plugin to your account**, approve `jobs:read` and `jobs:write`.
+   Leave the terminal running while approving; the browser returns to a temporary
+   `127.0.0.1` callback listener on your computer.
+3. `status` must show the production platform, OAuth authentication, and your intended
+   account. Start a new Claude/Codex session or reconnect its MCP server to load the new
+   credentials, then use `/novadde:status` or `$novadde:status` to verify account usage.
+
+If the browser says **This app cannot be connected**, close that page and start again
+with the installed `auth.sh login` command above. It uses the registered **Novadde Plugin**
+client at `https://platform.geodesiclab.com/api/oauth/clients/novadde-plugin.json`.
+The hosts' own MCP OAuth sign-in is a separate connection; clear an existing host-native
+OAuth connection for `model_platform` before reconnecting with the shared plugin login.
+
+A declined or timed-out login preserves an existing connection. Hooks and background
+refreshes never open a browser.
 
 The MCP connection, hooks and Claude watcher share `~/.config/geodesic/novadde-oauth.json`
 (mode 600). Tokens are bound to production, the MCP resource, the client and your account.
@@ -53,7 +99,7 @@ Never paste credentials into a conversation or put them on command arguments.
 To revoke the connection and clear it locally:
 
 ```bash
-/path/to/installed/novadde/scripts/auth.sh logout
+"$NOVADDE_AUTH" logout
 ```
 
 Reconnect the clients afterwards. Public catalog reads remain available without login.
@@ -61,7 +107,7 @@ If logout cannot reach production, it disables the local connection and reports 
 retry logout or revoke **Novadde Plugin** from https://platform.geodesiclab.com/keys.
 
 **Migration from 0.1.x:** development accounts, keys and credits are separate from production.
-Install/update 0.2.2, then log into the intended production account. Existing key files and
+Install/update 0.2.3, then log into the intended production account. Existing key files and
 keychain settings are not selected automatically. Disconnect any host-native OAuth connection
 for this MCP server so all components use the plugin's shared login. Both hosts keep the plugin
 identity `novadde@novadde-plugin` and server identity `model_platform`.
@@ -167,6 +213,9 @@ Version 0.2.1 corrects release-report aggregation so a failed client assertion c
 hidden by another client being unavailable. The cost smoke check uses the public
 structure-validation preset and submits no GPU work. Version 0.2.2 separates the Claude
 verification prompt from its variadic tool options so the installed client executes it.
+Version 0.2.3 evaluates completed MCP events independently of the final model summary and
+checks protected-call refusal and public catalog access in separate client invocations.
+Its prompts specify direct tool inputs and its public catalog check uses the structure-validation category.
 
 ## Release verification
 

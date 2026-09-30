@@ -2,7 +2,7 @@
 """Opt-in release gate: PUBLIC plugin -> real clients -> production OAuth.
 
 Not collected by offline CI. No test GPU submissions. Run from an operator terminal:
- python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.2 \
+ python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.3 \
    --expected-account usr-ID --fixture-job job-ID --fixture-path output.pdb \
    --fixture-sha256 SHA256 --report /safe/path/public-oauth-report.json
 
@@ -80,9 +80,11 @@ def observed_calls(stdout, client):
             if event.get('type') == 'item.completed' and item.get('type') == 'mcp_tool_call':
                 name = item.get('tool') or ''
                 if name in READS and 'model_platform' in (item.get('server') or ''):
+                    result = item.get('result') or {}
+                    tool_error = isinstance(result,dict) and bool(result.get('isError') or result.get('is_error'))
                     calls.setdefault(name, []).append({'arguments':item.get('arguments') or {},
-                                                       'result':unwrap(item.get('result')),
-                                                       'failed':item.get('status') != 'completed' or bool(item.get('error'))})
+                                                       'result':unwrap(result),
+                                                       'failed':item.get('status') != 'completed' or bool(item.get('error')) or tool_error})
         else:
             content = (event.get('message') or {}).get('content') or []
             if not isinstance(content, list): continue
@@ -100,12 +102,23 @@ def observed_calls(stdout, client):
 
 
 def client_call(client, env, cwd, requests, refused=False):
+    if refused and len(requests) > 1:
+        # Give the anonymous catalog its own client connection after the protected
+        # request. An expected auth error must not prevent the public read attempt.
+        results = {}
+        for request in requests:
+            results.update(client_call(client, env, cwd, [request], refused=True))
+        return results
+    inputs = '\n'.join(request['name'] + '(' + json.dumps(request.get('arguments',{})) + ')'
+                       for request in requests)
     prompt = ('Release verification. Use ONLY the installed novadde model_platform MCP server. '
               'Make these exact read-only calls once each. Do not use Bash, HTTP, another server, '
               'or any submission/cancellation/staging tool. Do not print authorization headers, '
-              'tokens or returned artifact ticket headers. Do not read credentials. Calls: ' +
-              json.dumps(requests) + '. Stop after the tool results. ' +
-              ('Protected calls are expected to be refused; do not initiate login.' if refused else ''))
+              'tokens or returned artifact ticket headers. Do not read credentials. '
+              'Pass each JSON object directly as the tool input; do not wrap it in name or arguments. Calls:\n' +
+              inputs + '\nStop after the tool results. ' +
+              ('Attempt the listed call even if authentication is expected to fail. '
+               'Protected calls are expected to be refused; do not initiate login.' if refused else ''))
     if client == 'claude':
         prefix = 'mcp__plugin_novadde_model_platform__'
         args = ['claude','-p','--output-format','stream-json','--verbose','--no-session-persistence',
@@ -114,22 +127,32 @@ def client_call(client, env, cwd, requests, refused=False):
     else:
         args = ['codex','-a','never','exec','--json','--ephemeral','--sandbox','read-only',
                 '--skip-git-repo-check','--color','never', prompt]
-    output = checked(args, env=env, cwd=cwd, timeout=300)
-    calls = observed_calls(output, client)
+    done = run(args, env=env, cwd=cwd, timeout=300)
+    # A provider/model error after a tool result can make the CLI exit nonzero.
+    # Require complete, valid MCP evidence for every request regardless of the
+    # final assistant summary; a failed command without those events still fails.
+    calls = observed_calls(done.stdout, client)
     results = {}
     for request in requests:
         name = request['name']
-        matched = [item for item in calls.get(name,[]) if item['arguments'] == request.get('arguments',{})]
+        expected_arguments = request.get('arguments',{})
+        # These tools have no input parameters. Some clients emit an unused
+        # arguments wrapper, which the server ignores; it changes no request
+        # semantics. Tools with actual parameters still require exact inputs.
+        no_parameters = name in ['get_profile','get_usage'] and not expected_arguments
+        matched = [item for item in calls.get(name,[])
+                   if no_parameters or item['arguments'] == expected_arguments]
         if not matched:
-            raise Failed('Actual client tool event was not observed')
+            reason = 'Client MCP arguments did not match: ' if calls.get(name) else 'Client MCP result event missing: '
+            raise Failed(reason + name)
         record = matched[-1]
         if name == 'get_profile' and refused:
-            if record['result'] is not None and not record['failed']:
-                raise Failed('Revoked connection still authenticated')
+            if not record['failed']:
+                raise Failed('Client did not report protected-call refusal')
             results[name] = None
         else:
             if record['failed'] or record['result'] is None:
-                raise Failed('Installed client MCP call failed')
+                raise Failed('Installed client MCP call failed: ' + name)
             results[name] = record['result']
     return results
 
@@ -344,13 +367,22 @@ def main():
             if not ready.get(host):
                 assertions[current] = {'result':'not run','reason':'Client login or initial connection is unavailable'}
                 continue
-            client_call(host,env,home,[{'name':'get_profile','arguments':{}},{'name':'list_models','arguments':{}}],refused=True)
+            public_args = {'category':'Structure validation','available_only':True}
+            result = client_call(host,env,home,[{'name':'get_profile','arguments':{}},
+                                               {'name':'list_models','arguments':public_args}],refused=True)
+            if not any(model.get('slug') == 'molprobity' for model in result['list_models'].get('models',[])):
+                raise Failed('Public catalog fixture is missing')
             assertions[current] = {'result':'passed'}
         states = [record['result'] for record in assertions.values()]
         report['result'] = 'failed' if 'failed' in states else ('not run' if 'not run' in states else 'passed')
     except NotRun:
         assertions[current] = {'result':'not run','reason':'Required login, fixture or client is unavailable'}
-    except (Failed, ValueError, KeyError, OSError, subprocess.SubprocessError):
+    except Failed as error:
+        # Failed contains only our own assertion messages and public tool names,
+        # never upstream exception values, URLs, transcripts or credentials.
+        assertions[current] = {'result':'failed','reason':str(error)}
+        report['result'] = 'failed'
+    except (ValueError, KeyError, OSError, subprocess.SubprocessError):
         assertions[current] = {'result':'failed','reason':'Release assertion did not succeed; inspect privately'}
         report['result'] = 'failed'
     finally:
