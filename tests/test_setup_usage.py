@@ -19,4 +19,9 @@ class Setup(unittest.TestCase):
             done = subprocess.run([str(ROOT/'setup-credential.sh'), '--check'], env={**os.environ, 'HOME': home}, capture_output=True, text=True)
             self.assertEqual(done.returncode, 3)
             self.assertIn('production', done.stdout.replace('platform.geodesiclab.com', 'production'))
+    def test_invalid_legacy_arguments_do_not_echo_secrets(self):
+        fake_secret = 'mp_test_0123456789abcdef'
+        done = subprocess.run([str(ROOT/'setup-credential.sh'), '--key', fake_secret], capture_output=True, text=True)
+        self.assertNotEqual(done.returncode, 0)
+        self.assertNotIn(fake_secret, done.stdout + done.stderr)
 if __name__ == '__main__': unittest.main()

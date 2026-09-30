@@ -43,6 +43,14 @@ class Rejected(AuthError):
     pass
 
 
+class SafeParser(argparse.ArgumentParser):
+    def error(self, message):
+        # argparse normally echoes invalid argument values, including an old --key
+        # invocation. Usage contains no user data; the diagnostic must not either.
+        self.print_usage(sys.stderr)
+        self.exit(2, "Unsupported arguments. Use --help; keep credentials off command arguments.\n")
+
+
 def directory():
     return Path.home() / ".config" / "geodesic"
 
@@ -313,7 +321,7 @@ def logout():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Novadde production authentication; never paste credentials into chat.")
+    parser = SafeParser(description="Novadde production authentication; never paste credentials into chat.")
     parser.add_argument("command", choices=["login", "logout", "status", "legacy-api-key", "headers", "call", "partition"])
     parser.add_argument("tool", nargs="?")
     parser.add_argument("--no-browser", action="store_true")

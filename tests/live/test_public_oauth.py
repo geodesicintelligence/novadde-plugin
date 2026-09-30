@@ -2,7 +2,7 @@
 """Opt-in release gate: PUBLIC plugin -> real clients -> production OAuth.
 
 Not collected by offline CI. No test GPU submissions. Run from an operator terminal:
- python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.0 \
+ python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.1 \
    --expected-account usr-ID --fixture-job job-ID --fixture-path output.pdb \
    --fixture-sha256 SHA256 --report /safe/path/public-oauth-report.json
 
@@ -155,6 +155,12 @@ def verify_tree(expected, actual):
                 raise Failed('Unexpected content in installed plugin')
 
 
+def report_result(assertions):
+    states = [record['result'] for record in assertions.values()]
+    if 'failed' in states: return 'failed'
+    return 'passed' if states and all(state == 'passed' for state in states) else 'not run'
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--public-sha', required=True)
@@ -251,8 +257,8 @@ def main():
         fixture = direct('get_job',{'job_id':args.fixture_job})
         if fixture.get('status') != 'completed': raise Failed('Fixture job is not completed')
         assertions[current] = {'result':'passed'}
-        # Use the real completed fixture inputs, unchanged, for a no-spend estimate.
-        model = fixture.get('model')
+        # Quote the public structure-validation preset; no sequence generation or GPU work.
+        model = 'molprobity'
         detail = direct('describe_model',{'slug':model})
         example = detail.get('example') or {}
         estimate_args = {'model':model, 'params':example.get('params',{}), 'files':example.get('files',{})}
@@ -358,6 +364,7 @@ def main():
                 report['result'] = 'failed'
         if temporary is not None:
             temporary.cleanup()
+        report['result'] = report_result(assertions)
         args.report.parent.mkdir(parents=True,exist_ok=True)
         args.report.write_text(json.dumps(report,indent=2)+'\n')
     print('Public production OAuth release test: '+report['result']+'. Sanitized report: '+str(args.report))

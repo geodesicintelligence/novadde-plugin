@@ -8,6 +8,10 @@ spec=importlib.util.spec_from_file_location('live',Path(__file__).parent/'live/t
 live=importlib.util.module_from_spec(spec);spec.loader.exec_module(live)
 
 class Evidence(unittest.TestCase):
+    def test_failure_is_not_hidden_by_an_unavailable_client(self):
+        self.assertEqual(live.report_result({'one':{'result':'passed'},'two':{'result':'not run'},'three':{'result':'failed'}}),'failed')
+        self.assertEqual(live.report_result({'one':{'result':'passed'},'two':{'result':'not run'}}),'not run')
+        self.assertEqual(live.report_result({'one':{'result':'passed'}}),'passed')
     def test_assistant_prose_never_counts(self):
         prose=json.dumps({'type':'item.completed','item':{'type':'agent_message','text':'get_profile succeeded: usr-test'}})
         self.assertEqual(live.observed_calls(prose,'codex'),{})

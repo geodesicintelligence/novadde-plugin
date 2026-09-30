@@ -30,7 +30,7 @@ Claude Code reads its own (`.claude-plugin/`).
 
 ## Connect it to the Model Platform
 
-Version **0.2.0** connects to https://platform.geodesiclab.com using OAuth by default.
+Version **0.2.1** connects to https://platform.geodesiclab.com using OAuth by default.
 Run `/novadde:setup` (Codex: `$novadde:setup`) to get the absolute path of the installed
 plugin's authentication command. In your own terminal, run:
 
@@ -61,7 +61,7 @@ If logout cannot reach production, it disables the local connection and reports 
 retry logout or revoke **Novadde Plugin** from https://platform.geodesiclab.com/keys.
 
 **Migration from 0.1.x:** development accounts, keys and credits are separate from production.
-Install/update 0.2.0, then log into the intended production account. Existing key files and
+Install/update 0.2.1, then log into the intended production account. Existing key files and
 keychain settings are not selected automatically. Disconnect any host-native OAuth connection
 for this MCP server so all components use the plugin's shared login. Both hosts keep the plugin
 identity `novadde@novadde-plugin` and server identity `model_platform`.
@@ -162,6 +162,10 @@ Copyright (c) 2026 Geodesic Intelligence. You may install the plugin and use it 
 Intelligence's services; [LICENSE](LICENSE) has the terms. Thirteen of the vendored skills are
 other people's work and keep their own licenses, MIT and Apache-2.0, which
 [THIRD-PARTY-NOTICES.md](plugins/novadde/THIRD-PARTY-NOTICES.md) reproduces.
+
+Version 0.2.1 corrects release-report aggregation so a failed client assertion cannot be
+hidden by another client being unavailable. The cost smoke check uses the public
+structure-validation preset and submits no GPU work.
 
 ## Release verification
 
