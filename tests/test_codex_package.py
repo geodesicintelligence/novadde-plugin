@@ -13,7 +13,7 @@ class Packages(unittest.TestCase):
         for host in ['claude', 'codex']:
             value = json.loads((PLUGIN / ('.' + host + '-plugin/plugin.json')).read_text())
             self.assertEqual(value['name'], 'novadde')
-            self.assertEqual(value['version'], '0.2.4')
+            self.assertEqual(value['version'], '0.2.5')
         codex = json.loads((PLUGIN / '.codex-plugin/plugin.json').read_text())
         self.assertEqual(codex['hooks'], {})
     def test_helpers_and_endpoints(self):

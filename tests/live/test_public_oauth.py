@@ -2,7 +2,7 @@
 """Opt-in release gate: PUBLIC plugin -> real clients -> production OAuth.
 
 Not collected by offline CI. No test GPU submissions. Run from an operator terminal:
- python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.4 \
+ python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.5 \
    --expected-account usr-ID --fixture-job job-ID --fixture-path output.pdb \
    --fixture-sha256 SHA256 --report /safe/path/public-oauth-report.json
 
@@ -121,9 +121,17 @@ def client_call(client, env, cwd, requests, refused=False):
                'Protected calls are expected to be refused; do not initiate login.' if refused else ''))
     if client == 'claude':
         prefix = 'mcp__plugin_novadde_model_platform__'
+        # Claude connects MCP servers in the background by default. With built-in
+        # tools disabled it cannot discover/wait for a still-pending server, so
+        # a valid shared OAuth login can yield no MCP call at all. Wait at startup
+        # and retain only the host's read-only discovery/waiting tools.
+        env = {**env, 'MCP_CONNECTION_NONBLOCKING':'0'}
+        discovery = ['ToolSearch','WaitForMcpServers']
+        prompt += '\nUse ToolSearch or WaitForMcpServers if needed to discover or wait for the listed MCP tools.'
         args = ['claude','-p','--output-format','stream-json','--verbose','--no-session-persistence',
-                '--allowedTools', ','.join(prefix+n for n in READS),
-                '--disallowedTools', ','.join(prefix+n for n in SPEND), '--tools','', '--', prompt]
+                '--allowedTools', ','.join(discovery + [prefix+n for n in READS]),
+                '--disallowedTools', ','.join(prefix+n for n in SPEND),
+                '--tools', ','.join(discovery), '--', prompt]
     else:
         args = ['codex','-a','never','exec','--json','--ephemeral','--sandbox','read-only',
                 '--skip-git-repo-check','--color','never', prompt]

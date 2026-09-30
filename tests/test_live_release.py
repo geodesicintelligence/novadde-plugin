@@ -16,9 +16,10 @@ class Evidence(unittest.TestCase):
         with patch.object(live,'run',return_value=subprocess.CompletedProcess([],0,'\n'.join(json.dumps(v) for v in frames),'')) as command:
             live.client_call('claude',{},Path('/tmp'),[{'name':'get_profile','arguments':{}}])
         args=command.call_args.args[0]
-        self.assertEqual(args[-4:-1],['--tools','','--'])
+        self.assertEqual(args[-4:-1],['--tools','ToolSearch,WaitForMcpServers','--'])
         self.assertIn('get_profile({})',args[-1])
         self.assertIn('do not wrap it in name or arguments',args[-1])
+        self.assertEqual(command.call_args.kwargs['env']['MCP_CONNECTION_NONBLOCKING'],'0')
     def test_completed_tool_evidence_survives_later_cli_summary_error(self):
         item={'type':'mcp_tool_call','server':'model_platform','tool':'get_profile','arguments':{},'status':'completed',
               'result':{'structuredContent':{'id':'usr-test'}}}
@@ -85,6 +86,15 @@ class Evidence(unittest.TestCase):
     def test_assistant_prose_never_counts(self):
         prose=json.dumps({'type':'item.completed','item':{'type':'agent_message','text':'get_profile succeeded: usr-test'}})
         self.assertEqual(live.observed_calls(prose,'codex'),{})
+    def test_pending_connection_or_discovery_cannot_count_as_mcp_evidence(self):
+        frames=[{'type':'system','subtype':'init','mcp_servers':[{'name':'plugin_novadde_model_platform','status':'pending'}]},
+                {'message':{'content':[{'type':'tool_use','id':'search-1','name':'ToolSearch','input':{'query':'get_usage'}}]}},
+                {'message':{'content':[{'type':'tool_result','tool_use_id':'search-1','content':[{'type':'tool_reference','tool_name':'mcp__plugin_novadde_model_platform__get_usage'}]}]}}]
+        output='\n'.join(json.dumps(frame) for frame in frames)
+        self.assertEqual(live.observed_calls(output,'claude'),{})
+        with patch.object(live,'run',return_value=subprocess.CompletedProcess([],0,output,'')):
+            with self.assertRaises(live.Failed):
+                live.client_call('claude',{},Path('/tmp'),[{'name':'get_usage','arguments':{}}])
     def test_codex_requires_completed_mcp_events(self):
         item={'type':'mcp_tool_call','server':'model_platform','tool':'get_profile','arguments':{},'status':'completed',
               'result':{'structuredContent':{'id':'usr-test'}}}
