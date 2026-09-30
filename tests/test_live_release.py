@@ -3,11 +3,20 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 spec=importlib.util.spec_from_file_location('live',Path(__file__).parent/'live/test_public_oauth.py')
 live=importlib.util.module_from_spec(spec);spec.loader.exec_module(live)
 
 class Evidence(unittest.TestCase):
+    def test_claude_prompt_is_separate_from_variadic_tool_options(self):
+        frames=[{'message':{'content':[{'type':'tool_use','id':'tool-1','name':'mcp__plugin_novadde_model_platform__get_profile','input':{}}]}},
+                {'message':{'content':[{'type':'tool_result','tool_use_id':'tool-1','content':json.dumps({'id':'usr-test'})}]}}]
+        with patch.object(live,'checked',return_value='\n'.join(json.dumps(v) for v in frames)) as command:
+            live.client_call('claude',{},Path('/tmp'),[{'name':'get_profile','arguments':{}}])
+        args=command.call_args.args[0]
+        self.assertEqual(args[-4:-1],['--tools','','--'])
+        self.assertIn('"name": "get_profile"',args[-1])
     def test_failure_is_not_hidden_by_an_unavailable_client(self):
         self.assertEqual(live.report_result({'one':{'result':'passed'},'two':{'result':'not run'},'three':{'result':'failed'}}),'failed')
         self.assertEqual(live.report_result({'one':{'result':'passed'},'two':{'result':'not run'}}),'not run')

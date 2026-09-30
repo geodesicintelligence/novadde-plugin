@@ -2,7 +2,7 @@
 """Opt-in release gate: PUBLIC plugin -> real clients -> production OAuth.
 
 Not collected by offline CI. No test GPU submissions. Run from an operator terminal:
- python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.1 \
+ python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.2 \
    --expected-account usr-ID --fixture-job job-ID --fixture-path output.pdb \
    --fixture-sha256 SHA256 --report /safe/path/public-oauth-report.json
 
@@ -110,7 +110,7 @@ def client_call(client, env, cwd, requests, refused=False):
         prefix = 'mcp__plugin_novadde_model_platform__'
         args = ['claude','-p','--output-format','stream-json','--verbose','--no-session-persistence',
                 '--allowedTools', ','.join(prefix+n for n in READS),
-                '--disallowedTools', ','.join(prefix+n for n in SPEND), '--tools','', prompt]
+                '--disallowedTools', ','.join(prefix+n for n in SPEND), '--tools','', '--', prompt]
     else:
         args = ['codex','-a','never','exec','--json','--ephemeral','--sandbox','read-only',
                 '--skip-git-repo-check','--color','never', prompt]
