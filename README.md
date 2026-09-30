@@ -47,23 +47,23 @@ Restart the client after updating.
 
 ## Connect it to the Model Platform
 
-Version **0.2.3** connects to https://platform.geodesiclab.com using OAuth by default.
+Version **0.2.4** connects to https://platform.geodesiclab.com using OAuth by default.
 Your Claude/Codex account login and your Geodesic platform login are separate.
 Install the plugin using the commands above, then run its OAuth login command in your
 own terminal. One platform login connects both clients and Claude's job watcher.
 
-**Claude Code, version 0.2.3:**
+**Claude Code, version 0.2.4:**
 
 ```bash
-NOVADDE_AUTH="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cache/novadde-plugin/novadde/0.2.3/scripts/auth.sh"
+NOVADDE_AUTH="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cache/novadde-plugin/novadde/0.2.4/scripts/auth.sh"
 "$NOVADDE_AUTH" login
 "$NOVADDE_AUTH" status
 ```
 
-**Codex, version 0.2.3:**
+**Codex, version 0.2.4:**
 
 ```bash
-NOVADDE_AUTH="${CODEX_HOME:-$HOME/.codex}/plugins/cache/novadde-plugin/novadde/0.2.3/scripts/auth.sh"
+NOVADDE_AUTH="${CODEX_HOME:-$HOME/.codex}/plugins/cache/novadde-plugin/novadde/0.2.4/scripts/auth.sh"
 "$NOVADDE_AUTH" login
 "$NOVADDE_AUTH" status
 ```
@@ -107,7 +107,7 @@ If logout cannot reach production, it disables the local connection and reports 
 retry logout or revoke **Novadde Plugin** from https://platform.geodesiclab.com/keys.
 
 **Migration from 0.1.x:** development accounts, keys and credits are separate from production.
-Install/update 0.2.3, then log into the intended production account. Existing key files and
+Install/update 0.2.4, then log into the intended production account. Existing key files and
 keychain settings are not selected automatically. Disconnect any host-native OAuth connection
 for this MCP server so all components use the plugin's shared login. Both hosts keep the plugin
 identity `novadde@novadde-plugin` and server identity `model_platform`.
@@ -216,6 +216,8 @@ verification prompt from its variadic tool options so the installed client execu
 Version 0.2.3 evaluates completed MCP events independently of the final model summary and
 checks protected-call refusal and public catalog access in separate client invocations.
 Its prompts specify direct tool inputs and its public catalog check uses the structure-validation category.
+Version 0.2.4 verifies every requested MCP tool in an independent client invocation and
+retains the specific assertion failure when a client cannot complete a call.
 
 ## Release verification
 

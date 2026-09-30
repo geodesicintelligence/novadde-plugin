@@ -2,7 +2,7 @@
 """Opt-in release gate: PUBLIC plugin -> real clients -> production OAuth.
 
 Not collected by offline CI. No test GPU submissions. Run from an operator terminal:
- python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.3 \
+ python3 tests/live/test_public_oauth.py --public-sha SHA --plugin-version 0.2.4 \
    --expected-account usr-ID --fixture-job job-ID --fixture-path output.pdb \
    --fixture-sha256 SHA256 --report /safe/path/public-oauth-report.json
 
@@ -102,12 +102,12 @@ def observed_calls(stdout, client):
 
 
 def client_call(client, env, cwd, requests, refused=False):
-    if refused and len(requests) > 1:
-        # Give the anonymous catalog its own client connection after the protected
-        # request. An expected auth error must not prevent the public read attempt.
+    if len(requests) > 1:
+        # Verify each requested tool through its own actual client invocation.
+        # A model/provider stopping after one result must not skip later calls.
         results = {}
         for request in requests:
-            results.update(client_call(client, env, cwd, [request], refused=True))
+            results.update(client_call(client, env, cwd, [request], refused=refused))
         return results
     inputs = '\n'.join(request['name'] + '(' + json.dumps(request.get('arguments',{})) + ')'
                        for request in requests)
@@ -301,8 +301,8 @@ def main():
             try:
                 results = client_call(host,env,home,requests)
                 if results['get_profile']['id'] != args.expected_account: raise Failed('Client account mismatch')
-            except (Failed,NotRun):
-                assertions[current] = {'result':'failed','reason':'Actual client MCP calls did not succeed'}
+            except (Failed,NotRun) as error:
+                assertions[current] = {'result':'failed','reason':str(error)}
                 ready[host] = False
                 continue
             ready[host] = True

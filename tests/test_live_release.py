@@ -68,6 +68,16 @@ class Evidence(unittest.TestCase):
             results=live.client_call('claude',{},Path('/tmp'),[{'name':'get_profile','arguments':{}},{'name':'list_models','arguments':{}}],refused=True)
         self.assertEqual(command.call_count,2)
         self.assertEqual(results,{'get_profile':None,'list_models':{'models':[]}})
+    def test_authenticated_requests_use_independent_client_calls(self):
+        outputs=[]
+        for name,result in [('get_profile',{'id':'usr-test'}),('get_usage',{'policy':'daily_job_count'})]:
+            item={'type':'mcp_tool_call','server':'model_platform','tool':name,'arguments':{},'status':'completed',
+                  'result':{'structuredContent':result}}
+            outputs.append(subprocess.CompletedProcess([],0,json.dumps({'type':'item.completed','item':item}),''))
+        with patch.object(live,'run',side_effect=outputs) as command:
+            results=live.client_call('codex',{},Path('/tmp'),[{'name':'get_profile','arguments':{}},{'name':'get_usage','arguments':{}}])
+        self.assertEqual(command.call_count,2)
+        self.assertEqual(results,{'get_profile':{'id':'usr-test'},'get_usage':{'policy':'daily_job_count'}})
     def test_failure_is_not_hidden_by_an_unavailable_client(self):
         self.assertEqual(live.report_result({'one':{'result':'passed'},'two':{'result':'not run'},'three':{'result':'failed'}}),'failed')
         self.assertEqual(live.report_result({'one':{'result':'passed'},'two':{'result':'not run'}}),'not run')
