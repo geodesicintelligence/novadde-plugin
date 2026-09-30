@@ -10,15 +10,14 @@ allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/status.sh)
 "${CLAUDE_PLUGIN_ROOT}"/scripts/status.sh
 ```
 
-If this script cannot run (on Codex it cannot: the variable is not substituted and the sandbox has no
-network), call `get_usage` and `list_jobs` and report them.
+Resolve the installed plugin path as in the setup skill. If the script cannot run, call
+`get_profile`, `get_usage` and `list_jobs` through the installed MCP connection and report them.
 
 Report what it prints. Four things are worth reading carefully rather than summarising away:
 
-- **Credential**. It is read from `~/.config/geodesic/model-platform.env`, the only place the key
-  is kept; the MCP connection and the job watcher read the same file. NONE means there is no key
-  in it, so nothing that submits or reads a run will work and no job notification will arrive: say
-  both, then point at `/novadde:setup`.
+- **Authentication and account**. OAuth is stored in `~/.config/geodesic/novadde-oauth.json`
+  and shared by MCP, hooks and the watcher. No connection means protected tools and job
+  notifications are unavailable. Point at `/novadde:setup`; never print the store's secrets.
 - **Quota**. The platform is the only thing that knows this. Relay the numbers exactly and never
   estimate one. It counts in one of two units, and the line says which: submissions per UTC day,
   or credits per week with a purchased balance beside them. The week's credits are spent first,

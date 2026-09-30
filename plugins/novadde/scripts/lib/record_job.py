@@ -11,6 +11,9 @@ import re
 import sys
 import time
 
+from watch_jobs import connection_dir
+from oauth_client import AuthError, atomic_write
+
 ID = re.compile(r"\b(?:job|run)-[0-9a-zA-Z]{6,}\b")
 KEEP_SECONDS = 7 * 86400
 
@@ -26,7 +29,11 @@ def main() -> int:
     found = set(ID.findall(json.dumps(event.get("tool_response") or "")))
     if not found:
         return 0
-    path = os.path.join(data_dir, "session-jobs.json")
+    try:
+        directory = connection_dir()
+    except AuthError:
+        return 0
+    path = str(directory / "session-jobs.json")
     try:
         with open(path) as handle:
             known = json.load(handle)
@@ -38,10 +45,7 @@ def main() -> int:
     for job_id in found:
         known.setdefault(job_id, now)
     known = {k: v for k, v in known.items() if isinstance(v, int) and now - v < KEEP_SECONDS}
-    tmp = f"{path}.tmp"
-    with open(tmp, "w") as handle:
-        json.dump(known, handle)
-    os.replace(tmp, path)
+    atomic_write(path, known)
     return 0
 
 

@@ -9,8 +9,11 @@ Codex installs the same plugin from its own three files: `.agents/plugins/market
 `tools`, `http_headers_helper`, the timeouts, `disabled_tools` -- go in `.codex.mcp.json` only. A
 `tools` table in `.mcp.json`, even an empty one, makes Claude Code drop the whole server without an
 error while `claude plugin validate --strict` still passes it, so `.mcp.json` holds only the four
-keys Claude reads. `tests/test_codex_package.py` holds the pair to three things: the two manifests
-carry one version, the two MCP files one key helper, and `.mcp.json` no key outside those four.
+keys Claude reads. `tests/test_codex_package.py` checks matching versions, production endpoints and generated
+header helpers. The helpers embed the exact `scripts/lib/oauth_client.py` source because
+Codex starts HTTP helpers in the session directory without a plugin-root variable.
+After changing that source, run `python3 plugins/novadde/scripts/lib/build_headers.py`;
+`--check` verifies the generated configurations.
 
 - `plugins/novadde/agents/novadde.md` is **generated**. Edit the pieces under `prompt/` and run
   `plugins/novadde/scripts/build-agent.sh`; never edit the agent file by hand. The build takes the

@@ -1,6 +1,6 @@
 {
   "name": "novadde",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "NovaDDE, Geodesic Intelligence's AI co-scientist for drug discovery: run protein design and structure models on Geodesic GPUs, billed to your Model Platform credits.",
   "author": {
     "name": "Geodesic Intelligence",

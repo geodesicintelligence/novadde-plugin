@@ -14,6 +14,9 @@ Fixture shapes are the platform's: SubmissionQuota in app/models.py, credits.vie
 app/credits.py. The refusal body is what the live host answers to a bad key.
 """
 import json
+import shutil
+import tempfile
+from pathlib import Path
 import os
 import subprocess
 import sys
@@ -53,9 +56,18 @@ def quota_line(body):
 
 def brief_lines(quota_route):
     """The lines of the context session-brief.sh hands the agent."""
-    routes = {"GET /api/submission-quota": quota_route, "POST /api/mcp": mcp_tools("get_job")}
-    with Sandbox(routes) as box:
-        result = box.run("session-brief.sh", stdin=json.dumps({"cwd": "/work"}))
+    with tempfile.TemporaryDirectory() as tmp:
+        scripts = Path(tmp) / "scripts"
+        shutil.copytree(SCRIPTS, scripts)
+        stub = scripts / "auth.sh"
+        ok = quota_route.get("status", 200) == 200
+        stub.write_text("#!/bin/sh\nif [ \"$1\" = status ]; then " +
+                        ("echo 'Authentication: oauth'" if ok else "exit 4") +
+                        "; else printf '%s' " + __import__('shlex').quote(json.dumps(quota_route.get("json",{}))) + "; fi\n")
+        stub.chmod(0o755)
+        cache = Path(tmp) / "cache"; cache.mkdir(); (cache / "tools.txt").write_text("get_job\n")
+        result = subprocess.run([str(scripts / "session-brief.sh")], input=json.dumps({"cwd":"/work"}),
+            text=True, capture_output=True, env={"HOME":tmp,"PATH":os.environ["PATH"],"CLAUDE_PLUGIN_DATA":str(cache)})
     context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
     return context.splitlines()
 

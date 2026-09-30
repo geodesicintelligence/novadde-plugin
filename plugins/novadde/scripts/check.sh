@@ -13,6 +13,9 @@ for f in "$root"/scripts/*.sh; do bash -n "$f" || fail "bash -n $f"; done
 note "== python syntax =="
 python3 -m py_compile "$root"/scripts/lib/*.py || fail "py_compile"
 
+note "== shared HTTP helpers are current =="
+python3 "$here/lib/build_headers.py" --check || fail "stale generated OAuth helpers"
+
 note "== manifests parse =="
 for f in .claude-plugin/plugin.json settings.json .mcp.json \
          hooks/hooks.json monitors/monitors.json \

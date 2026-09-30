@@ -1,7 +1,7 @@
 {
   "repo": "https://github.com/geodesicintelligence/geodesic-science-skills",
-  "commit": "72ec9362b58565dc3034127e181df1a34ac11bfa",
-  "synced_at": "2026-09-15T12:05:07Z",
+  "commit": "125eb07558f06f17728c1b1636e2a2c65b260f67",
+  "synced_at": "2026-09-30T10:40:26Z",
   "skills": [
     "antibody-developability-thresholds",
     "antibody-interface-metrics",
@@ -12,6 +12,7 @@
     "biopython",
     "bioservices",
     "borzoi",
+    "environment-orientation",
     "epitope-selection",
     "evo2",
     "fair-esm2",
@@ -19,6 +20,12 @@
     "gget",
     "glycoengineering",
     "ipsae-calculate",
+    "kernel-background-processes",
+    "kernel-git-bisect",
+    "kernel-git-identity-and-commits",
+    "kernel-merge-conflicts",
+    "kernel-test-first",
+    "kernel-verify-before-done",
     "molecular-dynamics",
     "paper-lookup",
     "plm-variant-scoring",
@@ -29,6 +36,6 @@
     "scientific-writing"
   ],
   "excluded": [
-    "test (a smoke test for the science repo's symlink install path)"
+    "internal-test (a smoke test for the science repo's symlink install path)"
   ]
 }

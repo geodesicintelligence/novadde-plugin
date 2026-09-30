@@ -11,6 +11,11 @@ need to wait here. When it says OFF, or there is no such line, nothing will: giv
 id, say you will not hear when it finishes, and check it with `get_job` when they ask. Either way,
 call `get_job` only if the user asks how a run in progress is doing, or when that line says to.
 
+Before spending credits, call `estimate_job` with the exact intended inputs and `get_usage`,
+explain the estimated cost and available allowance, and obtain explicit submission approval.
+Re-estimate and ask again when inputs or cost change. One approved run does not approve a
+batch, retry, or pipeline run. Follow the shared geodesic skill for submissions.
+
 Platform artifacts and files on your disk are separate: `read_artifact` and `read_artifact_bytes`
 create no file and never save one -- the base64 they return times the connection out. Do not fetch
 every result. To save one, or before claiming it is on disk, call `fetch_artifact(job_id, path)`, run

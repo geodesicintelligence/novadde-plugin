@@ -19,3 +19,4 @@ get_pipeline_run
 wait_for_pipeline_run
 cancel_pipeline_run
 get_profile
+get_usage

@@ -34,7 +34,7 @@ def main() -> int:
     for job in rows:
         line = "{:<24} {:<16} {:<10} {}".format(
             cell(job.get("id")), cell(job.get("model")), cell(job.get("status")),
-            cell(job.get("createdAt"), ""),
+            cell((job.get("createdAt") or job.get("created_at")), ""),
         )
         print(line.rstrip())
     return 0

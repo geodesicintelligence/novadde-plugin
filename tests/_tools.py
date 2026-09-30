@@ -13,10 +13,7 @@ SPEND_TOOLS are the ones a person decides on. `submit_job` and `submit_pipeline_
 `cancel_job` and `cancel_pipeline_run` throw away GPU time already paid for; `stage_file` uploads a
 file from the user's disk to the platform. Nothing may pre-approve these on the user's behalf.
 
-`get_usage` is in READ_TOOLS before the platform serves it (model_platform_api is adding it with
-the credit rules): an approval for a tool the server does not list is inert, and the one for this
-tool must be there the day it appears, because on Codex it is the only way to see the credit wallet
-from a conversation (the model's shell has no network).
+`get_profile` and `get_usage` are account reads and are pre-approved alongside job reads.
 
 A tool in neither set is the platform's newest, and the hosts default it to asking, which is the
 safe direction until it is sorted into one of these.
@@ -30,6 +27,7 @@ READ_TOOLS = frozenset({
     "describe_pipeline",
     "estimate_job",
     "get_usage",
+    "get_profile",
     "list_jobs",
     "get_job",
     "wait_for_job",

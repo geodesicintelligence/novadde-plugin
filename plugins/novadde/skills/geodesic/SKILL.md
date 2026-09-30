@@ -14,13 +14,19 @@ network except where explicitly noted under **Data egress** below.
 2. `describe_model(slug)` — the model's full parameter surface, and an `example`
    taken from its own bundled preset that is **a valid submission as-is**.
    Perturb that example rather than composing a submission from scratch.
-3. `submit_job` — params from the example; for each file key pass a source as a
+3. `estimate_job` with the exact intended parameters and files, then `get_usage`.
+   Tell the user the estimate, whether it is approximate or capped, and the available
+   allowance. Obtain explicit approval before `submit_job` or `submit_pipeline_run`:
+   these spend credits. Re-estimate and ask again if the intended inputs or cost change.
+   Approval for one run does not authorize a batch or a retry.
+4. `submit_job` — params from the example; for each file key pass a source as a
    flat string: `"preset:<the example's preset id>"`, `"url:<https url>"`,
    `"job:<id>#<artifact path>"` to feed an earlier run's output straight in, or
    `"stage:<id>"` for a file on your own disk — see **Getting a file in** below.
-4. `get_job` / `list_jobs` — poll. Jobs take minutes to hours. Nothing blocks.
-5. `get_stage_log(job, stage)` on failure — **the real error is at the end of
-   it**. Read it before changing anything.
+5. `get_job` / `list_jobs` — check progress when asked. Jobs take minutes to hours.
+   Follow the session's notification-availability instructions; do not repeatedly wait.
+   On failure inspect the returned stage errors before changing inputs. Use only tools
+   actually listed by the server; ask for platform details if no error is available.
 6. Read or download the outputs — see **Getting a result out** below.
    Which of the three tools you want depends on where the file is going.
 

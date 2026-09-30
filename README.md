@@ -30,49 +30,49 @@ Claude Code reads its own (`.claude-plugin/`).
 
 ## Connect it to the Model Platform
 
-For now the plugin works against the Model Platform's development deployment,
-https://dev-platform.geodesiclab.org. Its accounts, API keys and credits are its own: a key minted
-on platform.geodesiclab.com is refused there, so mint one on the development deployment as below.
+Version **0.2.0** connects to https://platform.geodesiclab.com using OAuth by default.
+Run `/novadde:setup` (Codex: `$novadde:setup`) to get the absolute path of the installed
+plugin's authentication command. In your own terminal, run:
 
-The key lives in one file, `~/.config/geodesic/model-platform.env` (mode 600), and nowhere else: the
-MCP connection, the hooks and the background job watcher all read it.
-
-1. Open https://dev-platform.geodesiclab.org and choose **Continue with Google**. Your first sign-in
-   creates the account.
-2. Open **API Keys** at https://dev-platform.geodesiclab.org/keys and create a key labelled
-   `novadde-plugin`. Leave the model list empty: a key restricted to some models is refused here.
-   Copy the secret.
-3. **In a terminal, not in any chat**, save it. The key is read hidden, never goes on a command
-   line, and the file's other lines are kept; an older `MODEL_PLATFORM_API_KEY=` line, with or
-   without `export`, is replaced.
-
-   ```bash
-   bash -c 'set -e; f="$HOME/.config/geodesic/model-platform.env"; read -rsp "Model Platform key (mp_...): " k; echo
-   case "$k" in mp_*) ;; *) echo "That is not an mp_ key." >&2; exit 1;; esac
-   mkdir -p "${f%/*}"; umask 077; touch "$f"; { grep -Ev "^[[:space:]]*(export[[:space:]]+)?MODEL_PLATFORM_API_KEY=" "$f" || true; printf "MODEL_PLATFORM_API_KEY=%s\n" "$k"; } > "$f.new"
-   mv "$f.new" "$f"; chmod 600 "$f"; echo "Saved to $f. Start a new Claude Code or Codex session."'
-   ```
-
-4. Start a new session.
-
-Never paste the key into a conversation. If a key leaks, delete it at
-https://dev-platform.geodesiclab.org/keys and mint a new one; a key the platform refuses is replaced
-the same way. `/novadde:setup` walks through these steps from inside a session, and
-
-```
-/novadde:status
+```bash
+/path/to/installed/novadde/scripts/auth.sh login
+/path/to/installed/novadde/scripts/auth.sh status
 ```
 
-says whether it worked. `/novadde:examples` offers the three worked requests from NovaDDE's own
-home screen if you want somewhere to start.
+Login opens the production sign-in and consent page. Approve **Novadde Plugin** for
+`jobs:read` and `jobs:write`, then reconnect MCP or start a new session. The temporary
+callback listener binds only to `127.0.0.1`. A declined or timed-out login preserves an
+existing connection. Hooks and background refreshes never open a browser.
 
-Type the `novadde:` prefix. Bare `/setup` and `/examples` reach the same skills while nothing else
-you have installed uses those names, but bare `/status` is always Claude Code's own status screen,
-which knows nothing about the Model Platform.
+The MCP connection, hooks and Claude watcher share `~/.config/geodesic/novadde-oauth.json`
+(mode 600). Tokens are bound to production, the MCP resource, the client and your account.
+Refreshes are serialized across processes. If a refresh was revoked, expired or interrupted,
+run `auth.sh login` again. OAuth failures never switch to an API key or another account.
+Never paste credentials into a conversation or put them on command arguments.
 
-**Upgrading from 0.1.0**, where the key was a plugin setting kept in your OS keychain: that copy is
-no longer read. Save the key to the file once, as above. Until you do, a session says there is no
-key in `~/.config/geodesic/model-platform.env` and asks you to run `/novadde:setup`.
+To revoke the connection and clear it locally:
+
+```bash
+/path/to/installed/novadde/scripts/auth.sh logout
+```
+
+Reconnect the clients afterwards. Public catalog reads remain available without login.
+If logout cannot reach production, it disables the local connection and reports failure;
+retry logout or revoke **Novadde Plugin** from https://platform.geodesiclab.com/keys.
+
+**Migration from 0.1.x:** development accounts, keys and credits are separate from production.
+Install/update 0.2.0, then log into the intended production account. Existing key files and
+keychain settings are not selected automatically. Disconnect any host-native OAuth connection
+for this MCP server so all components use the plugin's shared login. Both hosts keep the plugin
+identity `novadde@novadde-plugin` and server identity `model_platform`.
+
+**Explicit legacy API-key mode:** save a production key in the existing local
+`~/.config/geodesic/model-platform.env` file (mode 600), then run the installed command
+`auth.sh legacy-api-key`. It verifies and binds the selected account. Environment API keys
+are ignored, and there is no automatic fallback. To return to OAuth, run `auth.sh login`.
+
+`/novadde:status` reports your account, allowance and recent jobs; `/novadde:examples` offers
+worked requests. Use the `novadde:` prefix: bare `/status` is Claude Code's own status screen.
 
 ## What enabling it does
 
@@ -88,8 +88,8 @@ What you get:
 |---|---|
 | **The prompt** | The deployment's operator prompt, less two passages (below), plus its workspace and MCP briefs and its response-quality rule, in the order it assembles them |
 | **The models** | The Model Platform's MCP endpoint: the catalog, jobs, pipelines, artifacts and staging — 13 containerised models on the lab's GPUs |
-| **The skills** | 24 science skills vendored from `geodesic-science-skills`: binder campaigns, antibody numbering and liabilities, ipSAE, MD, RDKit, literature, figures, write-up |
-| **Job notifications** | In the interactive CLI, once the key is saved in `~/.config/geodesic/model-platform.env`, a background watcher polls your jobs and tells Claude when one finishes, so the agent ends its turn at `submit_job` instead of burning context polling. Where Claude Code runs no plugin monitors (Claude Desktop, `claude -p`, the Agent SDK, the GitHub Action, Bedrock, Vertex, Foundry, or with `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` set), and when the key is missing or the platform refuses it, the session brief says notifications are off, and the agent gives you the job's id and checks on it when you ask |
+| **The skills** | 31 science skills vendored from `geodesic-science-skills`: binder campaigns, antibody numbering and liabilities, ipSAE, MD, RDKit, literature, figures, write-up |
+| **Job notifications** | In the interactive CLI, after the shared production OAuth login, a background watcher polls your jobs and tells Claude when one finishes, so the agent ends its turn at `submit_job` instead of burning context polling. Where Claude Code runs no plugin monitors (Claude Desktop, `claude -p`, the Agent SDK, the GitHub Action, Bedrock, Vertex, Foundry, or with `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` set), and when the shared connection is missing or refused, the session brief says notifications are off, and the agent gives you the job's id and checks on it when you ask |
 
 ## On Codex
 
@@ -102,10 +102,10 @@ The same plugin, without the parts only Claude Code can run:
 | **The prompt** (NovaDDE as the session's agent) | yes | no: the Codex manifest carries no agent or system prompt, so Codex keeps its own |
 | **The session brief, the per-message reminder, Refuse job submission** | yes | no: they are hooks and settings, and the Codex manifest loads no hooks (`"hooks": {}`) on purpose, since Codex would otherwise load Claude's as untrusted Codex hooks |
 | **Job notifications** | in the interactive CLI | no: ask the agent, which checks with `get_job` or `wait_for_job` |
-| **`/novadde:setup`, `/novadde:status`** | run the plugin's scripts | the scripts cannot run there (`${CLAUDE_PLUGIN_ROOT}` is not substituted and the sandbox has no network), so the skills use the MCP tools instead: `list_jobs` shows whether the key works, and the credits come from `get_usage` where the platform serves it |
+| **`/novadde:setup`, `/novadde:status`** | run the plugin's scripts | resolve the installed script path or use `get_profile`, `get_usage` and `list_jobs` through MCP |
 
-The key is the same file on both hosts, `~/.config/geodesic/model-platform.env`, read by the same
-helper, so a key saved once works in either.
+Both hosts share the OAuth store and the same generated authentication helper. One login
+connects both clients and the watcher.
 
 ## Settings
 
@@ -118,13 +118,11 @@ already-installed plugin):
 | Per-message reminder | empty | The deployment's `user_message_suffix`, appended to every message you send |
 | Refuse job submission | off | Denies `submit_job` and `submit_pipeline_run`. The deployment ships this off too |
 
-Neither the key nor the platform is a setting. The key is only ever read from
-`~/.config/geodesic/model-platform.env`, and the platform is always
-`https://dev-platform.geodesiclab.org`: a `MODEL_PLATFORM_URL` line in that file, as lab machines
-have, is ignored.
+The platform is always `https://platform.geodesiclab.com`. URL overrides in legacy key
+files are ignored. OAuth is selected by default; legacy API keys require explicit selection.
 
-Without a key you still get the catalog: `list_models`, `describe_model`, `get_model_readme`,
-`list_pipelines`, `describe_pipeline`. Everything that submits or reads a run refuses.
+Without login you still get `list_models`, `describe_model`, `get_model_readme`,
+`list_pipelines` and `describe_pipeline`. Protected account and job tools refuse access.
 
 ## Where this differs from the deployment
 
@@ -164,3 +162,12 @@ Copyright (c) 2026 Geodesic Intelligence. You may install the plugin and use it 
 Intelligence's services; [LICENSE](LICENSE) has the terms. Thirteen of the vendored skills are
 other people's work and keep their own licenses, MIT and Apache-2.0, which
 [THIRD-PARTY-NOTICES.md](plugins/novadde/THIRD-PARTY-NOTICES.md) reproduces.
+
+## Release verification
+
+`tests/live/test_public_oauth.py` is an opt-in production OAuth test, separate from offline CI.
+It requires the expected public commit/version, both authenticated client executables, real
+browser approval in a dedicated account, and an existing completed job and artifact checksum.
+It installs the public marketplace package and checks actual client tool events, refresh,
+watcher deduplication and revocation. Missing prerequisites never count as a passing release.
+See `python3 tests/live/test_public_oauth.py --help` for the operator command.
